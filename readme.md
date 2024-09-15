@@ -4,8 +4,6 @@
 
 Dependencias:
 
-
-
 Para inicializar abrir la consola y ejecutar
 
 > npm i
@@ -13,5 +11,9 @@ Para inicializar abrir la consola y ejecutar
 luego
 
 > npm run dev
+
+El servidor se aloja en
+
+> http://localhost:8080
 
 ##### Tests realizados con Insomnia
