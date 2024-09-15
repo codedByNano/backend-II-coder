@@ -1,0 +1,36 @@
+<h1>Lista de Productos</h1>
+<div class="productsContainer">
+  {{#each productList.payload}}
+    <div class="productCard">
+      <h2>{{this.title}}</h2>
+      <p>{{this.description}}</p>
+      <p><strong>Precio:</strong> ${{this.price}}</p>
+      <p><strong>Categoría:</strong> {{this.category}}</p>
+      <button
+        type="submit"
+        id="addToCartBtn"
+        dataProductId="{{this._id}}"
+      >Agregar al carrito</button>
+      <a href="/api/products/{{this._id}}" class="btn">Ver detalles</a>
+
+    </div>
+  {{/each}}
+</div>
+
+<div class="pagination">
+  {{#if productList.hasPrevPage}}
+    <a href="?page={{productList.prevPage}}" class="btn">Anterior</a>
+  {{else}}
+    <button class="btn" disabled>Anterior</button>
+  {{/if}}
+
+  <span>Página {{productList.page}} de {{productList.totalPages}}</span>
+
+  {{#if productList.hasNextPage}}
+    <a href="?page={{productList.nextPage}}" class="btn">Siguiente</a>
+  {{else}}
+    <button class="btn" disabled>Siguiente</button>
+  {{/if}}
+</div>
+
+<script src="/cartHandler.js"></script>

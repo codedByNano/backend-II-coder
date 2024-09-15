@@ -14,8 +14,4 @@ luego
 
 > npm run dev
 
-El servidor es
-
-> http://localhost:8080
-
 ##### Tests realizados con Insomnia

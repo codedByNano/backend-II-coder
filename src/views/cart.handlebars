@@ -1,0 +1,22 @@
+<h1>{{title}}</h1>
+{{#if cart.products.length}}
+  <div class="productsContainer">
+    {{#each cart.products}}
+      <div class="productCard">
+        <h2>{{this.product.title}}</h2>
+        <p><strong>ID:</strong> {{this.product._id}}</p>
+        <p><strong>Descripción:</strong> {{this.product.description}}</p>
+        <p><strong>Código:</strong> {{this.product.code}}</p>
+        <p><strong>Precio:</strong> ${{this.product.price}}</p>
+        <p><strong>Estado:</strong> {{#if this.product.status}}Disponible{{else}}No disponible{{/if}}</p>
+        <p><strong>Stock:</strong> {{this.product.stock}}</p>
+        <p><strong>Categoría:</strong> {{this.product.category}}</p>
+        <p><strong>Cantidad:</strong> {{this.quantity}}</p>
+      </div>
+    {{/each}}
+  </div>
+{{else}}
+  <p>El carrito está vacío.</p>
+{{/if}}
+
+<script src="/cartHandler.js"></script>

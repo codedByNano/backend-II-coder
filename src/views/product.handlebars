@@ -1,0 +1,11 @@
+<div class="productDetail">
+  <h1>{{productPlain.title}}</h1>
+  <p>{{productPlain.description}}</p>
+  <p><strong>Precio:</strong> ${{productPlain.price}}</p>
+  <p><strong>Categoría:</strong> {{productPlain.category}}</p>
+  <p><strong>Stock:</strong> {{productPlain.stock}}</p>
+  <button type="submit" id="singleAddToCartBtn" dataProductId="{{productPlain._id}}">Agregar
+    al carrito</button>
+</div>
+
+<script src="/cartHandler.js"></script>

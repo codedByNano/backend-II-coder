@@ -1,0 +1,63 @@
+<h1>Lista de Productos en Tiempo Real</h1>
+
+<div class="formContainer">
+  <form id="addProductForm" class="addForm">
+    <input type="text" id="title" placeholder="Título" required />
+    <input type="text" id="description" placeholder="Descripción" required />
+    <input type="text" id="code" placeholder="Código" required />
+    <input type="number" id="price" placeholder="Precio" required />
+    <input type="number" id="stock" placeholder="Stock" required />
+    <input type="text" id="category" placeholder="Categoría" required />
+    <button type="submit">Agregar Producto</button>
+  </form>
+
+  <form id="editProductForm" class="editForm">
+    <input
+      type="text"
+      id="editId"
+      placeholder="ID del producto a editar"
+      required
+    />
+    <input type="text" id="editTitle" placeholder="Nuevo Título" required />
+    <input
+      type="text"
+      id="editDescription"
+      placeholder="Nueva Descripción"
+      required
+    />
+    <input type="number" id="editPrice" placeholder="Nuevo Precio" required />
+    <input type="number" id="editStock" placeholder="Nuevo Stock" required />
+    <input
+      type="text"
+      id="editCategory"
+      placeholder="Nueva Categoría"
+      required
+    />
+    <br />
+    <button type="submit">Editar Producto</button>
+  </form>
+
+  <form id="deleteProductForm" class="delForm">
+    <input type="text" id="deleteId" placeholder="ID del producto" required />
+    <button type="submit">Eliminar Producto</button>
+  </form>
+</div>
+
+<div class="productsContainer" id="productsContainer">
+  {{#each cleanedProducts}}
+    <div class="productCard">
+      <h2>{{title}}</h2>
+      <p><strong>ID:</strong> {{id}}</p>
+      <p><strong>Descripción:</strong> {{description}}</p>
+      <p><strong>Código:</strong> {{code}}</p>
+      <p><strong>Precio:</strong> ${{price}}</p>
+      <p><strong>Estado:</strong>
+        {{#if status}}Disponible{{else}}No disponible{{/if}}</p>
+      <p><strong>Stock:</strong> {{stock}}</p>
+      <p><strong>Categoría:</strong> {{category}}</p>
+    </div>
+  {{/each}}
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/realTimeProducts.js"></script>
