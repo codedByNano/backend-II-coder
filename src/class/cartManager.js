@@ -1,9 +1,15 @@
-import Cart from "../models/cart.model.js";
+import CartRepository from "../repositories/cart.repository.js";
+import CartDTO from "../dto/cart.dto.js";
 
 class CartManager {
+  constructor() {
+    this.cartRepository = new CartRepository();
+  }
+
   async getCarts() {
     try {
-      return await Cart.find();
+      const carts = await this.cartRepository.getCarts();
+      return carts.map((cart) => new CartDTO(cart));
     } catch (error) {
       console.error("Error getting carts:", error);
       throw new Error("Error getting carts");
@@ -12,10 +18,8 @@ class CartManager {
 
   async getCartById(id) {
     try {
-      const cart = await Cart.findById(id).populate("products.product").lean();
-      if (!cart) throw new Error(`Carrito con id ${id} no encontrado`);
-      if (cart.products.length === 0) return null;
-      return cart;
+      const cart = await this.cartRepository.getCartById(id);
+      return new CartDTO(cart);
     } catch (error) {
       console.error(`Error getting cart with id ${id}:`, error);
       throw new Error(`Error getting cart with id ${id}`);
@@ -24,8 +28,8 @@ class CartManager {
 
   async createCart() {
     try {
-      const newCart = new Cart({ products: [] });
-      return await newCart.save();
+      const newCart = await this.cartRepository.createCart();
+      return new CartDTO(newCart);
     } catch (error) {
       console.error("Error creating cart:", error);
       throw new Error("Error creating cart");
@@ -34,21 +38,41 @@ class CartManager {
 
   async addProductToCart(cartId, productId, quantity) {
     try {
-      const currentCart = await Cart.findById(cartId);
-      const productIndex = currentCart.products.findIndex((p) =>
-        p.product.equals(productId)
-      );
-
-      if (productIndex > -1) {
-        currentCart.products[productIndex].quantity += quantity;
-      } else {
-        currentCart.products.push({ product: productId, quantity });
-      }
-
-      return await currentCart.save();
+      const updatedCart = await this.cartRepository.addProductToCart(cartId, productId, quantity);
+      return new CartDTO(updatedCart);
     } catch (error) {
       console.error(`Error adding product to cart with id ${cartId}:`, error);
       throw new Error(`Error adding product to cart with id ${cartId}`);
+    }
+  }
+
+  async deleteProductFromCart(cartId, productId) {
+    try {
+      const updatedCart = await this.cartRepository.deleteProductFromCart(cartId, productId);
+      return new CartDTO(updatedCart);
+    } catch (error) {
+      console.error(`Error deleting product from cart with id ${cartId}:`, error);
+      throw new Error(`Error deleting product from cart with id ${cartId}`);
+    }
+  }
+
+  async updateProductQuantityInCart(cartId, productId, quantity) {
+    try {
+      const updatedCart = await this.cartRepository.updateProductQuantityInCart(cartId, productId, quantity);
+      return new CartDTO(updatedCart);
+    } catch (error) {
+      console.error(`Error updating product quantity in cart with id ${cartId}:`, error);
+      throw new Error(`Error updating product quantity in cart with id ${cartId}`);
+    }
+  }
+
+  async clearCart(cartId) {
+    try {
+      const updatedCart = await this.cartRepository.clearCart(cartId);
+      return new CartDTO(updatedCart);
+    } catch (error) {
+      console.error(`Error clearing cart with id ${cartId}:`, error);
+      throw new Error(`Error clearing cart with id ${cartId}`);
     }
   }
 }

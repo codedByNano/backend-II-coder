@@ -1,31 +1,18 @@
 import { io } from "../app.js";
-import Product from "../models/product.model.js";
+import ProductDAO from "../dao/product.dao.js";
+import ProductDTO from "../dto/product.dto.js";
 
 class ProductManager {
+  constructor() {
+    this.productDAO = new ProductDAO();
+  }
+
   async getProducts(options = {}) {
     try {
-      const { limit = 10, page = 1, sort, query } = options;
-      const filter = {};
-      if (query) {
-        if (query.category) filter.category = query.category;
-        if (query.status) filter.status = query.status = true;
-      }
-
-      const sortOption = {};
-      if (sort) {
-        sortOption.price = sort === "asc" ? 1 : -1;
-      }
-
-      const result = await Product.paginate(filter, {
-        limit: parseInt(limit),
-        page: parseInt(page),
-        sort: sortOption,
-        lean: true,
-      });
-
+      const result = await this.productDAO.getProducts(options);
       return {
         status: "success",
-        payload: result.docs,
+        payload: result.docs.map((product) => new ProductDTO(product)),
         totalPages: result.totalPages,
         prevPage: result.prevPage,
         nextPage: result.nextPage,
@@ -33,21 +20,22 @@ class ProductManager {
         hasPrevPage: result.hasPrevPage,
         hasNextPage: result.hasNextPage,
         prevLink: result.prevPage
-          ? `/api/products?page=${result.prevPage}&limit=${limit}`
+          ? `/api/products?page=${result.prevPage}&limit=${options.limit}`
           : null,
         nextLink: result.nextPage
-          ? `/api/products?page=${result.nextPage}&limit=${limit}`
+          ? `/api/products?page=${result.nextPage}&limit=${options.limit}`
           : null,
       };
     } catch (error) {
-      console.error("Error geting products:", error);
-      throw new Error("Error geting products");
+      console.error("Error getting products:", error);
+      throw new Error("Error getting products");
     }
   }
 
   async getProductById(id) {
     try {
-      return await Product.findById(id);
+      const product = await this.productDAO.getProductById(id);
+      return new ProductDTO(product);
     } catch (error) {
       console.error(`Error getting product with id ${id}`, error);
       throw new Error(`Error getting product with id ${id}`);
@@ -56,15 +44,9 @@ class ProductManager {
 
   async addProduct(productData) {
     try {
-      const isExists = await Product.findOne({ code: productData.code });
-      if (isExists) {
-        throw new Error("¡El código de producto ya existe!");
-      }
-
-      const product = new Product(productData);
-      const prodAdded = await product.save();
+      const newProduct = await this.productDAO.addProduct(productData);
       io.emit("ProductUpdate", await this.getProducts());
-      return prodAdded;
+      return new ProductDTO(newProduct);
     } catch (error) {
       console.error("Error adding product:", error);
       throw new Error("Error adding product");
@@ -73,11 +55,9 @@ class ProductManager {
 
   async updateProduct(id, productData) {
     try {
-      const prodUpdated = await Product.findByIdAndUpdate(id, productData, {
-        new: true,
-      });
+      const updatedProduct = await this.productDAO.updateProduct(id, productData);
       io.emit("ProductUpdate", await this.getProducts());
-      return prodUpdated;
+      return new ProductDTO(updatedProduct);
     } catch (error) {
       console.error(`Error updating product with id ${id}:`, error);
       throw new Error(`Error updating product with id ${id}`);
@@ -86,9 +66,9 @@ class ProductManager {
 
   async deleteProduct(id) {
     try {
-      const prodDeleted = await Product.findByIdAndDelete(id);
+      const deletedProduct = await this.productDAO.deleteProduct(id);
       io.emit("ProductUpdate", await this.getProducts());
-      return prodDeleted;
+      return new ProductDTO(deletedProduct);
     } catch (error) {
       console.error(`Error deleting product with id ${id}:`, error);
       throw new Error(`Error deleting product with id ${id}`);

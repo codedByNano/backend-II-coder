@@ -1,65 +1,48 @@
-import express from "express";
+import CustomRouter from "./customRouter.js";
 import ProductManager from "../class/productManager.js";
+import ProductDTO from "../dto/product.dto.js";
 
-const router = express.Router();
-const productManager = new ProductManager();
-
-router.get("/", async (req, res) => {
-  try {
-    const { limit, page, sort, query } = req.query;
-    const options = {
-      limit: limit || 10,
-      page: page || 1,
-      sort: sort || "",
-      query: query ? JSON.parse(query) : {},
-    };
-    const productList = await productManager.getProducts(options);
-    res.render("index", { title: "Lista de productos", productList });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+export default class ProductRouter extends CustomRouter {
+  constructor() {
+    super();
+    this.productManager = new ProductManager();
   }
-});
 
-router.get("/:pid", async (req, res) => {
-  const { pid } = req.params;
-  try {
-    const product = await productManager.getProductById(pid);
-    const productPlain = product.toObject ? product.toObject() : product;
-    res.render("product", { title: "Detalles del producto", productPlain });
-  } catch (error) {
-    res.status(404).json({ error: error.message });
+  init() {
+    this.get("/", ["PUBLIC"], async (req, res) => {
+      const options = {
+        limit: req.query.limit || 10,
+        page: req.query.page || 1,
+        sort: req.query.sort || "",
+        query: req.query.query ? JSON.parse(req.query.query) : {},
+      };
+      const productList = await this.productManager.getProducts(options);
+      res.success(productList);
+    });
+
+    this.get("/:pid", ["PUBLIC"], async (req, res) => {
+      const { pid } = req.params;
+      const product = await this.productManager.getProductById(pid);
+      res.success(new ProductDTO(product));
+    });
+
+    this.post("/", ["ADMIN"], async (req, res) => {
+      const productData = req.body;
+      const newProduct = await this.productManager.addProduct(productData);
+      res.success(new ProductDTO(newProduct));
+    });
+
+    this.put("/:pid", ["ADMIN"], async (req, res) => {
+      const { pid } = req.params;
+      const productData = req.body;
+      const updatedProduct = await this.productManager.updateProduct(pid, productData);
+      res.success(new ProductDTO(updatedProduct));
+    });
+
+    this.delete("/:pid", ["ADMIN"], async (req, res) => {
+      const { pid } = req.params;
+      await this.productManager.deleteProduct(pid);
+      res.success({ message: "Producto eliminado" });
+    });
   }
-});
-
-router.post("/", async (req, res) => {
-  const productData = req.body;
-  try {
-    const newProduct = await productManager.addProduct(productData);
-    res.status(201).json(newProduct);
-  } catch (error) {
-    res.status(500).json({ error: Error.message });
-  }
-});
-
-router.put("/:pid", async (req, res) => {
-  const { pid } = req.params;
-  const productData = req.body;
-  try {
-    const updatedProduct = await productManager.updateProduct(pid, productData);
-    res.status(200).json(updatedProduct);
-  } catch {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.delete("/:pid", async (req, res) => {
-  const { pid } = req.params;
-  try {
-    await productManager.deleteProduct(pid);
-    res.status(204).send();
-  } catch {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-export default router;
+}

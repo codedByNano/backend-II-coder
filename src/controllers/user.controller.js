@@ -45,7 +45,7 @@ export const register = async (req, res) => {
     };
 
     const user = await UserModel.create(newUser);
-    return res.status(201).json({ message: `Usuario creado: ${user.nombre}` });
+    return res.status(201).json({ message: `Usuario creado: ${user.nombre} ${user.apellido}` });
   } catch (e) {
     return res.status(500).json({ message: e });
   }

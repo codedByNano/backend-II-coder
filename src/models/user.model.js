@@ -4,7 +4,7 @@ const userCollection = "user";
 
 const userSchema = new Schema({
   nombre: String,
-  apelido: String,
+  apellido: String,
   email: {
     type: String,
     unique: true,

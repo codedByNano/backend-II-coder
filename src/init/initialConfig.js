@@ -5,8 +5,8 @@ import { connectionDB } from "../mongo/connection.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import initializePassport from "../passport/jwt.passport.js";
-import productRouter from "../routes/products.routes.js";
-import cartRouter from "../routes/cart.routes.js";
+import ProductRouter from "../routes/products.routes.js";
+import CartRouter from "../routes/cart.routes.js";
 import viewsRouter from "../routes/views.routes.js";
 import { __dirname } from "../util.js";
 
@@ -19,8 +19,14 @@ export const AppInit = (app) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.static(__dirname + "/public"));
+
   app.use("/", router);
-  app.use("/api/products", productRouter);
-  app.use("/api/carts", cartRouter);
+
+  const productRouter = new ProductRouter();
+  app.use("/api/products", productRouter.getRouter());
+
+  const cartRouter = new CartRouter();
+  app.use("/api/carts", cartRouter.getRouter());
+
   app.use("/", viewsRouter);
 };
