@@ -14,7 +14,6 @@ class CartDAO {
     try {
       const cart = await Cart.findById(id).populate("products.product").lean();
       if (!cart) throw new Error(`Carrito con id ${id} no encontrado`);
-      if (cart.products.length === 0) return null;
       return cart;
     } catch (error) {
       console.error(`Error getting cart with id ${id}:`, error);
